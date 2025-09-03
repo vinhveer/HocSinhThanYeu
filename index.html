@@ -16,9 +16,21 @@
             margin-bottom: 0.25rem; /* 4px - smaller margin */
         }
         
-        /* Better text spacing in seats */
+        /* Better text spacing in seats - allow 2 lines */
         .seat-content {
-            padding: 0 0.5rem;
+            padding: 0 0.25rem;
+            line-height: 1.1;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            font-size: 0.75rem; /* 12px */
+            height: 2.6rem; /* Exactly 2 lines * 1.1 line-height */
+            overflow: hidden;
+            display: block; /* Changed from flex to allow <br> tags */
+            text-align: center;
+            white-space: normal;
+            /* Vertical centering for block display */
+            line-height: 1.3rem; /* Adjusted for better spacing with <br> */
         }
         
         /* Fallback for older browsers that don't support aspect-ratio */
@@ -45,11 +57,21 @@
             .seat-photo {
                 max-width: 60px;
             }
+            .seat-content {
+                font-size: 0.7rem;
+                height: 2.3rem;
+                line-height: 1.15rem;
+            }
         }
         
         @media (min-width: 1200px) {
             .seat-photo {
                 max-width: 100px;
+            }
+            .seat-content {
+                font-size: 0.8rem;
+                height: 2.8rem;
+                line-height: 1.4rem;
             }
         }
         

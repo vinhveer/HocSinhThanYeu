@@ -157,19 +157,23 @@
         border-radius: 4px !important;
     }
     
-    /* Ensure text fits properly */
+    /* Ensure text fits properly - exactly 2 lines */
     .seat-content {
-        font-size: 11px !important;
-        line-height: 1.2 !important;
+        font-size: 9px !important;
+        line-height: 9.9px !important; /* 9px * 1.1 */
         text-align: center !important;
         word-wrap: break-word !important;
         overflow-wrap: break-word !important;
+        hyphens: auto !important;
         flex-grow: 1 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
+        display: block !important; /* Changed from flex to support <br> tags */
         font-weight: 600 !important;
-        padding: 0 4px !important;
+        padding: 0 2px !important;
+        height: 19.8px !important; /* Exactly 2 lines * 9px * 1.1 line-height */
+        overflow: hidden !important;
+        white-space: normal !important;
+        /* Vertical centering for 2-line text */
+        padding-top: 1px !important;
     }
     
     /* Student photo styling for print */

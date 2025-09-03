@@ -29,6 +29,22 @@ const Utils = {
         return name.trim();
     },
 
+    formatNameForTwoLines(name) {
+        const trimmedName = name.trim();
+        const words = trimmedName.split(' ');
+        
+        if (words.length <= 2) {
+            return trimmedName;
+        }
+        
+        // Try to split into roughly equal halves
+        const midPoint = Math.ceil(words.length / 2);
+        const firstLine = words.slice(0, midPoint).join(' ');
+        const secondLine = words.slice(midPoint).join(' ');
+        
+        return `${firstLine}<br>${secondLine}`;
+    },
+
     createElement(tag, className, innerHTML = '') {
         const element = document.createElement(tag);
         if (className) element.className = className;

@@ -345,9 +345,9 @@ class SeatingManager {
                     photoElement.classList.add('hidden');
                 }
                 
-                // Always show student name
+                // Always show student name (formatted for 2 lines)
                 contentElement.classList.remove('hidden');
-                contentElement.innerHTML = Utils.getStudentDisplayName(seat.student.name);
+                contentElement.innerHTML = Utils.formatNameForTwoLines(seat.student.name);
                 
                 contentElement.title = seat.student.name;
                 
