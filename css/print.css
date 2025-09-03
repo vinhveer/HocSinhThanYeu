@@ -1,0 +1,248 @@
+/* Print-specific styles for landscape A4 classroom seating layout */
+
+@media print {
+    /* Set landscape A4 format */
+    @page {
+        size: A4 landscape;
+        margin: 10mm;
+    }
+    
+    /* Hide everything except the classroom layout */
+    #sidebar,
+    #collapsedSidebar,
+    .flex.justify-end.items-center.mb-2,
+    body > div > div > div:first-child,
+    .no-print,
+    /* Hide all modals and overlays */
+    .fixed,
+    .absolute,
+    #addStudentModal,
+    #addListModal,
+    .modal,
+    .overlay,
+    /* Hide any z-index elements that might be overlays */
+    [style*="z-index"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    /* Make the classroom layout full width for landscape */
+    #mainContent {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        position: static !important;
+    }
+    
+    /* Adjust the main layout for print */
+    body {
+        margin: 0;
+        padding: 0;
+        background: white !important;
+        height: 100vh;
+        overflow: visible !important;
+    }
+    
+    /* Main container adjustments */
+    body > div {
+        height: 100vh !important;
+        display: block !important;
+        position: static !important;
+    }
+    
+    /* Remove any transforms that might affect print layout */
+    * {
+        transform: none !important;
+        position: static !important;
+    }
+    
+    /* Except for the aisle text rotation */
+    .transform.-rotate-90 {
+        transform: rotate(-90deg) !important;
+    }
+    
+    /* Classroom flex adjustments for landscape */
+    .flex.gap-3.w-full {
+        gap: 12px !important;
+        height: 100% !important;
+        align-items: stretch !important;
+        display: flex !important;
+    }
+    
+    /* Individual seat grids */
+    .grid.grid-cols-4 {
+        gap: 6px !important;
+        display: grid !important;
+    }
+    
+    /* Seat styling for print */
+    .min-h-36 {
+        border: 1.5px solid #000 !important;
+        background: white !important;
+        min-height: 90px !important;
+        height: 90px !important;
+        width: auto !important;
+        page-break-inside: avoid;
+        font-size: 11px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        position: static !important;
+        padding: 4px !important;
+    }
+    
+    /* Occupied seat styling for print */
+    .border-green-500 {
+        border-color: #000 !important;
+        background: #f0f0f0 !important;
+    }
+    
+    /* Text contrast for print */
+    .text-gray-500 {
+        color: #000 !important;
+    }
+    
+    .text-gray-700 {
+        color: #000 !important;
+    }
+    
+    /* Section containers */
+    .flex-1 {
+        padding: 10px !important;
+        page-break-inside: avoid;
+        display: block !important;
+        flex: 1 1 0% !important;
+    }
+    
+    .w-8 {
+        width: 20px !important;
+        display: block !important;
+    }
+    
+    /* Aisle indicator */
+    .w-8 > div {
+        height: 400px !important;
+        width: 20px !important;
+        min-height: auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    /* Teacher's desk styling for print */
+    .bg-yellow-100 {
+        background: #f5f5f5 !important;
+        border: 2px solid #000 !important;
+        margin-top: 10px !important;
+    }
+    
+    /* Teacher's desk alignment */
+    .justify-end {
+        justify-content: flex-end !important;
+    }
+    
+    /* Hide shadows and rounded corners for cleaner print */
+    .shadow-lg,
+    .shadow-md {
+        box-shadow: none !important;
+    }
+    
+    .rounded-lg {
+        border-radius: 4px !important;
+    }
+    
+    /* Ensure text fits properly */
+    .seat-content {
+        font-size: 11px !important;
+        line-height: 1.2 !important;
+        text-align: center !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        flex-grow: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-weight: 600 !important;
+        padding: 0 4px !important;
+    }
+    
+    /* Student photo styling for print */
+    .seat-photo {
+        width: 80% !important;
+        aspect-ratio: 1 / 1 !important;
+        max-width: 60px !important;
+        border-radius: 50% !important;
+        overflow: hidden !important;
+        border: 1px solid #000 !important;
+        margin: 0 auto 2px auto !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .seat-photo img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+    }
+    
+    /* Fallback for aspect-ratio in print */
+    @supports not (aspect-ratio: 1 / 1) {
+        .seat-photo {
+            height: auto !important;
+        }
+        .seat-photo::before {
+            content: '' !important;
+            display: block !important;
+            padding-bottom: 100% !important;
+        }
+        .seat-photo > img {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+        }
+    }
+    
+    /* Hide any buttons that might appear */
+    button {
+        display: none !important;
+    }
+    
+    /* Hide scrollbars */
+    ::-webkit-scrollbar {
+        display: none !important;
+    }
+    
+    /* Ensure proper flex behavior */
+    .flex {
+        display: flex !important;
+    }
+    
+    .flex-col {
+        flex-direction: column !important;
+    }
+    
+    .items-center {
+        align-items: center !important;
+    }
+    
+    .justify-center {
+        justify-content: center !important;
+    }
+    
+    /* Hide any potential overlay elements */
+    [class*="modal"],
+    [class*="overlay"],
+    [class*="popup"],
+    [class*="tooltip"],
+    [id*="modal"],
+    [id*="overlay"],
+    [id*="popup"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+}

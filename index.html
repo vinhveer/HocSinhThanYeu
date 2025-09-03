@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Class Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/print.css" media="print">
+    <style>
+        /* Dynamic photo sizing based on card size */
+        .seat-photo {
+            width: 80%;
+            aspect-ratio: 1 / 1;
+            max-width: 80px;
+            transition: all 0.2s ease;
+            margin-bottom: 0.25rem; /* 4px - smaller margin */
+        }
+        
+        /* Better text spacing in seats */
+        .seat-content {
+            padding: 0 0.5rem;
+        }
+        
+        /* Fallback for older browsers that don't support aspect-ratio */
+        @supports not (aspect-ratio: 1 / 1) {
+            .seat-photo {
+                height: auto;
+            }
+            .seat-photo::before {
+                content: '';
+                display: block;
+                padding-bottom: 100%;
+            }
+            .seat-photo > img {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .seat-photo {
+                max-width: 60px;
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            .seat-photo {
+                max-width: 100px;
+            }
+        }
+        
+        /* PickOne Wheel Animations */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .animate-pulse {
+            animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .wheel-spinning {
+            animation: spin 0.5s linear infinite;
+        }
+        
+        /* Prevent text selection during spin */
+        .no-select {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen">
+    <div class="flex h-full">
+        <!-- Collapsible Sidebar - Student List -->
+        <div id="sidebar" class="w-80 bg-white shadow-lg border-r flex flex-col transition-all duration-300">
+            <!-- Collapse button -->
+            <div class="p-2 border-b flex justify-end">
+                <button 
+                    id="toggleSidebar" 
+                    class="p-2 text-gray-600 hover:text-gray-800 transition duration-200"
+                    title="Toggle sidebar"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Header with buttons -->
+            <div class="p-4 border-b">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">Waiting List</h2>
+                
+                <div class="space-y-2">
+                    <button 
+                        id="openAddStudentModal" 
+                        class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
+                    >
+                        Add Student
+                    </button>
+                    
+                    <button 
+                        id="openAddListModal" 
+                        class="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition duration-200"
+                    >
+                        Add List
+                    </button>
+                    
+                    <button 
+                        id="clearAllStudents" 
+                        class="w-full bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition duration-200"
+                    >
+                        Clear All
+                    </button>
+                    
+                                         <button 
+                         id="clearData" 
+                         class="w-full bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition duration-200 text-sm"
+                     >
+                         Clear Saved Data
+                     </button>
+                     
+                     <button 
+                         id="pickOneBtn" 
+                         class="w-full bg-purple-500 text-white py-2 px-4 rounded-md hover:bg-purple-600 transition duration-200 font-bold"
+                     >
+                         🎯 Pick One
+                     </button>
+                </div>
+                
+                <!-- Student count -->
+                <div class="mt-4 text-sm text-gray-600">
+                    Waiting: <span id="studentCount" class="font-bold">0</span>
+                </div>
+                
+                <!-- Save status -->
+                <div class="mt-2 text-xs text-gray-500">
+                    <span id="saveStatus">Auto-save enabled</span>
+                </div>
+            </div>
+
+            <!-- Search bar -->
+            <div class="p-4 border-b">
+                <input 
+                    type="text" 
+                    id="searchStudents" 
+                    placeholder="Search students..." 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+            </div>
+
+            <!-- Student list -->
+            <div class="flex-1 overflow-y-auto p-4">
+                <div id="studentList" class="space-y-2">
+                    <!-- Students will be dynamically added here -->
+                </div>
+                
+                <!-- Empty state -->
+                <div id="emptyStudentState" class="text-center text-gray-500 mt-10">
+                    <p class="text-sm">No students waiting</p>
+                    <p class="text-xs">Click "Add Student" or "Add List" to begin</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Collapsed sidebar indicator -->
+        <div id="collapsedSidebar" class="w-12 bg-white shadow-lg border-r flex-col items-center py-4 hidden">
+            <button 
+                id="expandSidebar" 
+                class="p-2 text-gray-600 hover:text-gray-800 transition duration-200 mb-4"
+                title="Expand sidebar"
+            >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                </svg>
+            </button>
+            <div class="text-xs text-gray-500 writing-mode-vertical transform rotate-180">Students</div>
+        </div>
+
+        <!-- Main content area - Classroom Seating -->
+        <div id="mainContent" class="flex-1 p-2 overflow-auto min-w-0">
+            <div class="flex justify-end items-center mb-2">
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600">
+                        Seated: <span id="seatedCount" class="font-bold">0</span>/48
+                    </span>
+                    <button 
+                        id="printClassroom" 
+                        class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
+                    >
+                        Print Classroom
+                    </button>
+                    <button 
+                        id="clearSeats" 
+                        class="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition duration-200"
+                    >
+                        Clear All Seats
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Classroom layout -->
+            <div class="w-full max-w-none">
+                <div class="flex gap-3 w-full items-stretch">
+                    <!-- Left side classroom -->
+                    <div class="flex-1 bg-white rounded-lg shadow-lg p-3">
+                        <div id="leftGrid" class="grid grid-cols-4 gap-3 w-full">
+                            <!-- 4x6 = 24 seats will be generated -->
+                        </div>
+                    </div>
+
+                    <!-- Aisle indicator -->
+                    <div class="w-8 flex items-center justify-center">
+                        <div class="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
+                            <span class="text-gray-500 text-xs transform -rotate-90 font-bold">AISLE</span>
+                        </div>
+                    </div>
+
+                    <!-- Right side classroom -->
+                    <div class="flex-1 bg-white rounded-lg shadow-lg p-3">
+                        <div id="rightGrid" class="grid grid-cols-4 gap-3 w-full">
+                            <!-- 4x6 = 24 seats will be generated -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teacher's desk -->
+            <div class="mt-3 flex justify-end w-full">
+                <div class="bg-yellow-100 border-2 border-yellow-300 rounded-lg p-3 shadow-md w-48">
+                    <div class="text-center text-gray-700 font-bold text-sm">BÀN GIÁO VIÊN</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Student Modal -->
+    <div id="addStudentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-96">
+            <h3 class="text-lg font-bold mb-4">Add Student</h3>
+            <input 
+                type="text" 
+                id="studentNameInput" 
+                placeholder="Enter student name" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+            >
+            <div class="flex space-x-2">
+                <button 
+                    id="confirmAddStudent" 
+                    class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
+                >
+                    Add
+                </button>
+                <button 
+                    id="cancelAddStudent" 
+                    class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition duration-200"
+                >
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add List Modal -->
+    <div id="addListModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-96">
+            <h3 class="text-lg font-bold mb-4">Add Student List</h3>
+            <textarea 
+                id="studentListInput" 
+                placeholder="Paste list here:&#10;EM A&#10;EM B&#10;EM C&#10;EM D" 
+                rows="8" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-4"
+            ></textarea>
+            <div class="flex space-x-2">
+                <button 
+                    id="confirmAddList" 
+                    class="flex-1 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition duration-200"
+                >
+                    Add List
+                </button>
+                <button 
+                    id="cancelAddList" 
+                    class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition duration-200"
+                >
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Upload Modal -->
+    <div id="photoModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-96">
+            <h3 class="text-lg font-bold mb-4">Student Photo</h3>
+            <div class="mb-4">
+                <p class="text-sm text-gray-600 mb-2">Student: <span id="photoStudentName" class="font-bold"></span></p>
+            </div>
+            
+            <!-- Current photo display -->
+            <div class="mb-4 flex justify-center">
+                <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden border-2">
+                    <img id="currentPhoto" class="w-full h-full object-cover hidden" alt="Student photo">
+                    <span id="noPhotoText" class="text-gray-500 text-sm">No photo</span>
+                </div>
+            </div>
+            
+            <!-- Upload options -->
+            <div class="space-y-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload Photo</label>
+                    <input 
+                        type="file" 
+                        id="photoFileInput" 
+                        accept="image/*" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                </div>
+                
+                <div class="text-center">
+                    <span class="text-sm text-gray-500">or</span>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Paste Image (Ctrl+V)</label>
+                    <div 
+                        id="pasteArea" 
+                        class="w-full h-20 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:border-blue-400 transition duration-200"
+                    >
+                        <span class="text-gray-500 text-sm">Click here and paste image</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex space-x-2">
+                <button 
+                    id="savePhoto" 
+                    class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
+                >
+                    Save Photo
+                </button>
+                <button 
+                    id="removePhoto" 
+                    class="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition duration-200"
+                >
+                    Remove
+                </button>
+                <button 
+                    id="cancelPhoto" 
+                    class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition duration-200"
+                >
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pick One Modal -->
+    <div id="pickOneModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-96 max-w-90vw">
+            <h3 class="text-xl font-bold mb-4 text-center text-purple-600">🎯 Pick One Student</h3>
+            
+            <!-- Wheel Container -->
+            <div class="mb-6 flex justify-center">
+                <div id="wheelContainer" class="relative w-72 h-72 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center shadow-2xl">
+                    <!-- Pointer -->
+                    <div class="absolute top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-8 border-transparent border-b-red-500 z-10"></div>
+                    
+                    <!-- Student Names Slider -->
+                    <div id="studentWheel" class="text-center no-select">
+                        <div id="currentStudent" class="text-2xl font-bold text-white bg-black bg-opacity-30 rounded-lg px-4 py-2 min-h-16 flex items-center justify-center">
+                            Ready?
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Result Display -->
+            <div id="resultDisplay" class="text-center mb-4 hidden">
+                <div class="bg-yellow-100 border-2 border-yellow-400 rounded-lg p-4">
+                    <h4 class="text-lg font-bold text-yellow-800 mb-2">🎉 Selected Student:</h4>
+                    <div id="selectedStudent" class="text-xl font-bold text-purple-600"></div>
+                </div>
+            </div>
+            
+            <!-- Controls -->
+            <div class="flex space-x-2">
+                <button 
+                    id="spinWheelBtn" 
+                    class="flex-1 bg-purple-500 text-white py-3 px-4 rounded-md hover:bg-purple-600 transition duration-200 font-bold"
+                >
+                    🎲 Spin the Wheel!
+                </button>
+                <button 
+                    id="closePickOneBtn" 
+                    class="bg-gray-500 text-white py-3 px-4 rounded-md hover:bg-gray-600 transition duration-200"
+                >
+                    Close
+                </button>
+            </div>
+            
+            <!-- Student Count Info -->
+            <div class="mt-4 text-center text-sm text-gray-500">
+                <span id="pickOneStudentCount">0 students available</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/modal-manager.js"></script>
+    <script src="js/photo-manager.js"></script>
+    <script src="js/seating-manager.js"></script>
+    <script src="js/pickone-manager.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
