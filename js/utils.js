@@ -7,15 +7,15 @@ const SEAT_CONFIG = {
 };
 
 const SEAT_CLASSES = {
-    BASE: 'min-h-36 w-full border-2 border-gray-300 rounded-lg flex flex-col items-center justify-start cursor-pointer hover:border-blue-400 transition-all duration-200 p-3',
-    OCCUPIED: 'border-green-500 bg-green-50',
-    HOVER: 'border-blue-500 bg-blue-50',
+    BASE: 'seat-base min-h-36 w-full flex flex-col items-center justify-start cursor-pointer p-3',
+    OCCUPIED: 'seat-occupied',
+    HOVER: 'hover:border-blue-400',
     EMPTY: 'border-gray-300'
 };
 
 const STUDENT_CLASSES = {
-    LIST_ITEM: 'bg-gray-50 p-3 rounded-md border hover:bg-gray-100 transition duration-200 cursor-move',
-    AVATAR: 'w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3',
+    LIST_ITEM: 'student-item cursor-move',
+    AVATAR: 'w-8 h-8 rounded-full flex items-center justify-center mr-3',
     DRAGGING: 'opacity-50'
 };
 
@@ -70,5 +70,17 @@ const Utils = {
             clearTimeout(timeout);
             timeout = setTimeout(later, wait);
         };
+    },
+
+    // Remove Vietnamese accents/diacritics
+    removeAccents(str) {
+        return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    },
+
+    // Search with accent-insensitive matching
+    searchMatch(text, query) {
+        const normalizedText = this.removeAccents(text);
+        const normalizedQuery = this.removeAccents(query);
+        return normalizedText.includes(normalizedQuery);
     }
 };

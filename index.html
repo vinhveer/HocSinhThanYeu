@@ -7,13 +7,251 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/print.css" media="print">
     <style>
+        /* Notion default color scheme - minimal colors */
+        :root {
+            --notion-bg: #ffffff;
+            --notion-secondary-bg: #fafafa;
+            --notion-text: #37352f;
+            --notion-text-secondary: #787774;
+            --notion-border: #e9e9e7;
+            --notion-hover: #f1f1ef;
+            --notion-button-bg: #37352f;
+            --notion-button-hover: #2f2f2f;
+            --notion-danger: #eb5757;
+            --notion-danger-hover: #d44545;
+            --notion-success: #37352f;
+            --notion-success-hover: #2f2f2f;
+            --notion-warning: #37352f;
+            --notion-warning-hover: #2f2f2f;
+            --notion-purple: #37352f;
+            --notion-purple-hover: #2f2f2f;
+        }
+
+        /* Base styling */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+            background-color: var(--notion-secondary-bg);
+            color: var(--notion-text);
+        }
+
+        /* Navbar styling */
+        nav {
+            background-color: var(--notion-bg);
+            border-bottom: 1px solid var(--notion-border);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        nav h1 {
+            color: var(--notion-text);
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        /* Button styling - Notion style */
+        .btn-notion {
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.625rem 1rem;
+            border-radius: 0.375rem;
+            border: none;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            min-height: 2.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--notion-button-bg);
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: var(--notion-button-hover);
+        }
+
+        .btn-success {
+            background-color: var(--notion-success);
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: var(--notion-success-hover);
+        }
+
+        .btn-danger {
+            background-color: var(--notion-danger);
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: var(--notion-danger-hover);
+        }
+
+        .btn-warning {
+            background-color: var(--notion-warning);
+            color: white;
+        }
+        .btn-warning:hover {
+            background-color: var(--notion-warning-hover);
+        }
+
+        .btn-purple {
+            background-color: var(--notion-purple);
+            color: white;
+        }
+        .btn-purple:hover {
+            background-color: var(--notion-purple-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--notion-hover);
+            color: var(--notion-text);
+            border: 1px solid var(--notion-border);
+        }
+        .btn-secondary:hover {
+            background-color: var(--notion-border);
+        }
+
+        /* Sidebar styling */
+        #sidebar {
+            background-color: var(--notion-bg);
+            border-right: 1px solid var(--notion-border);
+            box-shadow: none;
+        }
+
+        #sidebar h2 {
+            color: var(--notion-text);
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Input styling - Notion style with high priority */
+        input, textarea, select {
+            border: 1px solid var(--notion-border) !important;
+            border-radius: 0.25rem !important;
+            background-color: var(--notion-bg) !important;
+            color: var(--notion-text) !important;
+            font-size: 0.875rem !important;
+            font-weight: 400 !important;
+            transition: all 0.15s ease !important;
+            padding: 0.5rem 0.75rem !important;
+            min-height: 2.25rem !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        input:hover, textarea:hover, select:hover {
+            border-color: var(--notion-text-secondary) !important;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none !important;
+            border-color: var(--notion-text) !important;
+            box-shadow: 0 0 0 1px var(--notion-text) !important;
+            background-color: var(--notion-bg) !important;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--notion-text-secondary) !important;
+            opacity: 1 !important;
+        }
+
+        /* Specific styling for file inputs */
+        input[type="file"] {
+            padding: 0.375rem 0.5rem !important;
+            font-size: 0.8125rem !important;
+            border: 1px dashed var(--notion-border) !important;
+            background-color: var(--notion-secondary-bg) !important;
+        }
+
+        input[type="file"]:hover {
+            border-color: var(--notion-text-secondary) !important;
+            background-color: var(--notion-hover) !important;
+        }
+
+        /* Paste area styling */
+        #pasteArea {
+            border: 1px dashed var(--notion-border) !important;
+            background-color: var(--notion-secondary-bg) !important;
+            color: var(--notion-text-secondary) !important;
+            border-radius: 0.25rem !important;
+        }
+
+        #pasteArea:hover {
+            border-color: var(--notion-text-secondary) !important;
+            background-color: var(--notion-hover) !important;
+        }
+
+        /* Search input specific */
+        #searchStudents {
+            border: 1px solid var(--notion-border) !important;
+            border-radius: 0.25rem !important;
+            background-color: var(--notion-bg) !important;
+            padding: 0.5rem 0.75rem !important;
+            font-size: 0.875rem !important;
+        }
+
+        /* Student list styling */
+        .student-item {
+            background-color: var(--notion-bg);
+            border: 1px solid var(--notion-border);
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.15s ease;
+        }
+
+        .student-item:hover {
+            background-color: var(--notion-hover);
+            border-color: var(--notion-text-secondary);
+        }
+
+        /* Student avatar */
+        .student-item .w-8.h-8 {
+            background-color: var(--notion-button-bg);
+            color: white;
+        }
+
+        /* Main content area */
+        #mainContent {
+            background-color: var(--notion-secondary-bg);
+            padding: 1rem;
+        }
+
+        /* Seat styling */
+        .seat-base {
+            background-color: var(--notion-bg);
+            border: 1px solid var(--notion-border);
+            border-radius: 0.375rem;
+            transition: all 0.15s ease;
+        }
+
+        .seat-base:hover {
+            border-color: var(--notion-button-bg);
+            box-shadow: 0 0 0 1px var(--notion-button-bg);
+        }
+
+        .seat-occupied {
+            background-color: #e8f5e8;
+            border-color: var(--notion-success);
+        }
+
+        /* Modal styling */
+        .modal-content {
+            background-color: var(--notion-bg);
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--notion-border);
+        }
+
         /* Dynamic photo sizing based on card size */
         .seat-photo {
             width: 80%;
             aspect-ratio: 1 / 1;
             max-width: 80px;
             transition: all 0.2s ease;
-            margin-bottom: 0.25rem; /* 4px - smaller margin */
+            margin-bottom: 0.25rem;
+            border: 1px solid var(--notion-border);
         }
         
         /* Better text spacing in seats - allow 2 lines */
@@ -23,14 +261,14 @@
             word-wrap: break-word;
             overflow-wrap: break-word;
             hyphens: auto;
-            font-size: 0.75rem; /* 12px */
-            height: 2.6rem; /* Exactly 2 lines * 1.1 line-height */
+            font-size: 0.75rem;
+            height: 2.6rem;
             overflow: hidden;
-            display: block; /* Changed from flex to allow <br> tags */
+            display: block;
             text-align: center;
             white-space: normal;
-            /* Vertical centering for block display */
-            line-height: 1.3rem; /* Adjusted for better spacing with <br> */
+            line-height: 1.3rem;
+            color: var(--notion-text);
         }
         
         /* Fallback for older browsers that don't support aspect-ratio */
@@ -101,84 +339,116 @@
             -ms-user-select: none;
             user-select: none;
         }
+
+        /* Text colors */
+        .text-secondary {
+            color: var(--notion-text-secondary);
+        }
+
+        /* Teacher header */
+        #teacherHeader {
+            background-color: var(--notion-hover);
+            border: 1px solid var(--notion-border);
+            border-radius: 0.375rem;
+        }
     </style>
 </head>
 <body class="bg-gray-100 h-screen">
-    <div class="flex h-full">
-        <!-- Collapsible Sidebar - Student List -->
-        <div id="sidebar" class="w-80 bg-white shadow-lg border-r flex flex-col transition-all duration-300">
-            <!-- Collapse button -->
-            <div class="p-2 border-b flex justify-end">
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white shadow-lg border-b px-4 py-3">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center space-x-3">
                 <button 
                     id="toggleSidebar" 
-                    class="p-2 text-gray-600 hover:text-gray-800 transition duration-200"
-                    title="Toggle sidebar"
+                    class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition duration-200"
+                    title="Ẩn/hiện sidebar"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                     </svg>
                 </button>
+                <h1 class="text-xl font-bold text-gray-800">Quản lý lớp học</h1>
             </div>
-
-            <!-- Header with buttons -->
-            <div class="p-4 border-b">
-                <h2 class="text-xl font-bold mb-4 text-gray-800">Waiting List</h2>
+            
+            <div class="flex items-center space-x-3">
+                <button 
+                    id="openAddStudentModal" 
+                    class="btn-notion btn-primary"
+                >
+                    Thêm học sinh
+                </button>
                 
-                <div class="space-y-2">
-                    <button 
-                        id="openAddStudentModal" 
-                        class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
-                    >
-                        Add Student
-                    </button>
-                    
-                    <button 
-                        id="openAddListModal" 
-                        class="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition duration-200"
-                    >
-                        Add List
-                    </button>
-                    
-                    <button 
-                        id="clearAllStudents" 
-                        class="w-full bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition duration-200"
-                    >
-                        Clear All
-                    </button>
-                    
-                                         <button 
-                         id="clearData" 
-                         class="w-full bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition duration-200 text-sm"
-                     >
-                         Clear Saved Data
-                     </button>
-                     
-                     <button 
-                         id="pickOneBtn" 
-                         class="w-full bg-purple-500 text-white py-2 px-4 rounded-md hover:bg-purple-600 transition duration-200 font-bold"
-                     >
-                         🎯 Pick One
-                     </button>
-                </div>
+                <button 
+                    id="openAddListModal" 
+                    class="btn-notion btn-success"
+                >
+                    Thêm danh sách
+                </button>
+                
+                <button 
+                    id="pickOneBtn" 
+                    class="btn-notion btn-purple"
+                >
+                    🎯 Chọn ngẫu nhiên
+                </button>
+                
+                <button 
+                    id="printClassroom" 
+                    class="btn-notion btn-primary"
+                >
+                    In lớp học
+                </button>
+                
+                <button 
+                    id="clearSeats" 
+                    class="btn-notion btn-danger"
+                >
+                    Xóa ghế
+                </button>
+                
+                <button 
+                    id="clearAllStudents" 
+                    class="btn-notion btn-danger"
+                >
+                    Xóa tất cả
+                </button>
+                
+                <button 
+                    id="clearData" 
+                    class="btn-notion btn-secondary"
+                >
+                    Xóa dữ liệu
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex h-full" style="height: calc(100vh - 70px);">
+        <!-- Collapsible Sidebar - Student List -->
+        <div id="sidebar" class="w-80 bg-white border-r flex flex-col transition-all duration-300">
+
+            <!-- Header -->
+            <div class="p-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold mb-3 text-gray-900">Danh sách chờ</h2>
                 
                 <!-- Student count -->
-                <div class="mt-4 text-sm text-gray-600">
-                    Waiting: <span id="studentCount" class="font-bold">0</span>
+                <div class="text-sm text-secondary">
+                    Đang chờ: <span id="studentCount" class="font-medium">0</span>
                 </div>
                 
                 <!-- Save status -->
-                <div class="mt-2 text-xs text-gray-500">
-                    <span id="saveStatus">Auto-save enabled</span>
+                <div class="mt-2 text-xs text-secondary">
+                    <span id="saveStatus">Tự động lưu</span>
                 </div>
             </div>
 
             <!-- Search bar -->
-            <div class="p-4 border-b">
+            <div class="p-4 border-b border-gray-200">
                 <input 
                     type="text" 
                     id="searchStudents" 
-                    placeholder="Search students..." 
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Tìm kiếm học sinh..." 
+                    class="w-full"
                 >
             </div>
 
@@ -190,63 +460,28 @@
                 
                 <!-- Empty state -->
                 <div id="emptyStudentState" class="text-center text-gray-500 mt-10">
-                    <p class="text-sm">No students waiting</p>
-                    <p class="text-xs">Click "Add Student" or "Add List" to begin</p>
+                    <p class="text-sm">Chưa có học sinh chờ</p>
+                    <p class="text-xs">Sử dụng các nút trên navbar để thêm học sinh</p>
                 </div>
             </div>
         </div>
 
-        <!-- Collapsed sidebar indicator -->
-        <div id="collapsedSidebar" class="w-12 bg-white shadow-lg border-r flex-col items-center py-4 hidden">
-            <button 
-                id="expandSidebar" 
-                class="p-2 text-gray-600 hover:text-gray-800 transition duration-200 mb-4"
-                title="Expand sidebar"
-            >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
-                </svg>
-            </button>
-            <div class="text-xs text-gray-500 writing-mode-vertical transform rotate-180">Students</div>
-        </div>
 
         <!-- Main content area - Classroom Seating -->
-        <div id="mainContent" class="flex-1 p-2 overflow-auto min-w-0">
-            <div class="flex justify-end items-center mb-2">
-                <div class="flex items-center space-x-4">
-                    <span class="text-sm text-gray-600">
-                        Seated: <span id="seatedCount" class="font-bold">0</span>/48
+        <div id="mainContent" class="flex-1 p-4 overflow-auto min-w-0">
+            <div class="flex justify-end items-center mb-4">
+                <div class="flex items-center">
+                    <span class="text-sm text-secondary">
+                        Đã ngồi: <span id="seatedCount" class="font-medium">0</span>/48
                     </span>
-                    <button 
-                        id="printClassroom" 
-                        class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
-                    >
-                        Print Classroom
-                    </button>
-                    <button 
-                        id="clearSeats" 
-                        class="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition duration-200"
-                    >
-                        Clear All Seats
-                    </button>
                 </div>
-            </div>
-            
-            <!-- Teacher name header -->
-            <div id="teacherHeader" class="w-full flex justify-between items-center mb-3 hidden">
-                <div class="bg-blue-100 border-2 border-blue-300 rounded-lg p-3 shadow-md">
-                    <div class="text-center text-gray-700 font-bold text-sm">
-                        GVCN: <span id="teacherNameDisplay">Chưa thiết lập</span>
-                    </div>
-                </div>
-                <div></div> <!-- Spacer for flex space-between -->
             </div>
             
             <!-- Classroom layout -->
             <div class="w-full max-w-none">
-                <div class="flex gap-3 w-full items-stretch">
+                <div class="flex gap-4 w-full items-stretch">
                     <!-- Left side classroom -->
-                    <div class="flex-1 bg-white rounded-lg shadow-lg p-3">
+                    <div class="flex-1 bg-white rounded-lg p-4 border border-gray-200">
                         <div id="leftGrid" class="grid grid-cols-4 gap-3 w-full">
                             <!-- 4x6 = 24 seats will be generated -->
                         </div>
@@ -254,13 +489,13 @@
 
                     <!-- Aisle indicator -->
                     <div class="w-8 flex items-center justify-center">
-                        <div class="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
-                            <span class="text-gray-500 text-xs transform -rotate-90 font-bold">AISLE</span>
+                        <div class="w-full h-96 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200">
+                            <span class="text-gray-400 text-xs transform -rotate-90 font-medium">LỐI ĐI</span>
                         </div>
                     </div>
 
                     <!-- Right side classroom -->
-                    <div class="flex-1 bg-white rounded-lg shadow-lg p-3">
+                    <div class="flex-1 bg-white rounded-lg p-4 border border-gray-200">
                         <div id="rightGrid" class="grid grid-cols-4 gap-3 w-full">
                             <!-- 4x6 = 24 seats will be generated -->
                         </div>
@@ -268,10 +503,20 @@
                 </div>
             </div>
 
-            <!-- Teacher's desk -->
-            <div class="mt-3 flex justify-end w-full">
-                <div class="bg-yellow-100 border-2 border-yellow-300 rounded-lg p-3 shadow-md w-48">
-                    <div class="text-center text-gray-700 font-bold text-sm">BÀN GIÁO VIÊN</div>
+            <!-- Teacher info and desk row -->
+            <div class="mt-4 flex justify-between items-center w-full">
+                <!-- Teacher name -->
+                <div id="teacherHeader" class="hidden">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <div class="text-center font-medium text-sm">
+                            GVCN: <span id="teacherNameDisplay">Chưa thiết lập</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Teacher's desk -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 w-48">
+                    <div class="text-center font-medium text-sm">BÀN GIÁO VIÊN</div>
                 </div>
             </div>
         </div>
@@ -279,26 +524,26 @@
 
     <!-- Add Student Modal -->
     <div id="addStudentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-lg shadow-xl w-96">
-            <h3 class="text-lg font-bold mb-4">Add Student</h3>
+        <div class="modal-content p-6 w-96">
+            <h3 class="text-lg font-semibold mb-4">Thêm học sinh</h3>
             <input 
                 type="text" 
                 id="studentNameInput" 
-                placeholder="Enter student name" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+                placeholder="Nhập tên học sinh" 
+                class="w-full mb-4"
             >
             <div class="flex space-x-2">
                 <button 
                     id="confirmAddStudent" 
-                    class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
+                    class="flex-1 btn-notion btn-primary"
                 >
-                    Add
+                    Thêm
                 </button>
                 <button 
                     id="cancelAddStudent" 
-                    class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition duration-200"
+                    class="flex-1 btn-notion btn-secondary"
                 >
-                    Cancel
+                    Hủy
                 </button>
             </div>
         </div>
@@ -306,26 +551,26 @@
 
     <!-- Add List Modal -->
     <div id="addListModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-lg shadow-xl w-96">
-            <h3 class="text-lg font-bold mb-4">Add Student List</h3>
+        <div class="modal-content p-6 w-96">
+            <h3 class="text-lg font-semibold mb-4">Thêm danh sách học sinh</h3>
             <textarea 
                 id="studentListInput" 
-                placeholder="Paste list here:&#10;EM A&#10;EM B&#10;EM C&#10;EM D" 
+                placeholder="Dán danh sách tại đây:&#10;Nguyễn Văn A&#10;Trần Thị B&#10;Lê Văn C&#10;Phạm Thị D" 
                 rows="8" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-4"
+                class="w-full resize-none mb-4"
             ></textarea>
             <div class="flex space-x-2">
                 <button 
                     id="confirmAddList" 
-                    class="flex-1 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition duration-200"
+                    class="flex-1 btn-notion btn-success"
                 >
-                    Add List
+                    Thêm danh sách
                 </button>
                 <button 
                     id="cancelAddList" 
-                    class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition duration-200"
+                    class="flex-1 btn-notion btn-secondary"
                 >
-                    Cancel
+                    Hủy
                 </button>
             </div>
         </div>
@@ -333,43 +578,43 @@
 
     <!-- Photo Upload Modal -->
     <div id="photoModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-lg shadow-xl w-96">
-            <h3 class="text-lg font-bold mb-4">Student Photo</h3>
+        <div class="modal-content p-6 w-96">
+            <h3 class="text-lg font-semibold mb-4">Ảnh học sinh</h3>
             <div class="mb-4">
-                <p class="text-sm text-gray-600 mb-2">Student: <span id="photoStudentName" class="font-bold"></span></p>
+                <p class="text-sm text-secondary mb-2">Học sinh: <span id="photoStudentName" class="font-medium"></span></p>
             </div>
             
             <!-- Current photo display -->
             <div class="mb-4 flex justify-center">
-                <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden border-2">
-                    <img id="currentPhoto" class="w-full h-full object-cover hidden" alt="Student photo">
-                    <span id="noPhotoText" class="text-gray-500 text-sm">No photo</span>
+                <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden border">
+                    <img id="currentPhoto" class="w-full h-full object-cover hidden" alt="Ảnh học sinh">
+                    <span id="noPhotoText" class="text-secondary text-sm">Chưa có ảnh</span>
                 </div>
             </div>
             
             <!-- Upload options -->
             <div class="space-y-4 mb-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload Photo</label>
+                    <label class="block text-sm font-medium mb-2">Tải ảnh lên</label>
                     <input 
                         type="file" 
                         id="photoFileInput" 
                         accept="image/*" 
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="w-full"
                     >
                 </div>
                 
                 <div class="text-center">
-                    <span class="text-sm text-gray-500">or</span>
+                    <span class="text-sm text-secondary">hoặc</span>
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Paste Image (Ctrl+V)</label>
+                    <label class="block text-sm font-medium mb-2">Dán ảnh (Ctrl+V)</label>
                     <div 
                         id="pasteArea" 
-                        class="w-full h-20 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:border-blue-400 transition duration-200"
+                        class="w-full h-20 flex items-center justify-center cursor-pointer transition duration-200"
                     >
-                        <span class="text-gray-500 text-sm">Click here and paste image</span>
+                        <span class="text-secondary text-sm">Click vào đây và dán ảnh</span>
                     </div>
                 </div>
             </div>
@@ -377,21 +622,21 @@
             <div class="flex space-x-2">
                 <button 
                     id="savePhoto" 
-                    class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
+                    class="flex-1 btn-notion btn-primary"
                 >
-                    Save Photo
+                    Lưu ảnh
                 </button>
                 <button 
                     id="removePhoto" 
-                    class="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition duration-200"
+                    class="btn-notion btn-danger"
                 >
-                    Remove
+                    Xóa
                 </button>
                 <button 
                     id="cancelPhoto" 
-                    class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition duration-200"
+                    class="flex-1 btn-notion btn-secondary"
                 >
-                    Cancel
+                    Hủy
                 </button>
             </div>
         </div>
@@ -399,8 +644,8 @@
 
     <!-- Pick One Modal -->
     <div id="pickOneModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-lg shadow-xl w-96 max-w-90vw">
-            <h3 class="text-xl font-bold mb-4 text-center text-purple-600">🎯 Pick One Student</h3>
+        <div class="modal-content p-6 w-96 max-w-90vw">
+            <h3 class="text-lg font-semibold mb-4 text-center" style="color: var(--notion-text);">🎯 Chọn ngẫu nhiên học sinh</h3>
             
             <!-- Wheel Container -->
             <div class="mb-6 flex justify-center">
@@ -411,7 +656,7 @@
                     <!-- Student Names Slider -->
                     <div id="studentWheel" class="text-center no-select">
                         <div id="currentStudent" class="text-2xl font-bold text-white bg-black bg-opacity-30 rounded-lg px-4 py-2 min-h-16 flex items-center justify-center">
-                            Ready?
+                            Sẵn sàng?
                         </div>
                     </div>
                 </div>
@@ -420,7 +665,7 @@
             <!-- Result Display -->
             <div id="resultDisplay" class="text-center mb-4 hidden">
                 <div class="bg-yellow-100 border-2 border-yellow-400 rounded-lg p-4">
-                    <h4 class="text-lg font-bold text-yellow-800 mb-2">🎉 Selected Student:</h4>
+                    <h4 class="text-lg font-bold text-yellow-800 mb-2">🎉 Học sinh được chọn:</h4>
                     <div id="selectedStudent" class="text-xl font-bold text-purple-600"></div>
                 </div>
             </div>
@@ -429,66 +674,66 @@
             <div class="flex space-x-2">
                 <button 
                     id="spinWheelBtn" 
-                    class="flex-1 bg-purple-500 text-white py-3 px-4 rounded-md hover:bg-purple-600 transition duration-200 font-bold"
+                    class="flex-1 btn-notion btn-purple font-medium py-3"
                 >
-                    🎲 Spin the Wheel!
+                    🎲 Quay ngẫu nhiên!
                 </button>
                 <button 
                     id="closePickOneBtn" 
-                    class="bg-gray-500 text-white py-3 px-4 rounded-md hover:bg-gray-600 transition duration-200"
+                    class="btn-notion btn-secondary py-3"
                 >
-                    Close
+                    Đóng
                 </button>
             </div>
             
             <!-- Student Count Info -->
-            <div class="mt-4 text-center text-sm text-gray-500">
-                <span id="pickOneStudentCount">0 students available</span>
+            <div class="mt-4 text-center text-sm text-secondary">
+                <span id="pickOneStudentCount">0 học sinh có sẵn</span>
             </div>
         </div>
     </div>
 
     <!-- Print Setup Modal -->
     <div id="printSetupModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-lg shadow-xl w-96 max-w-90vw">
-            <h3 class="text-xl font-bold mb-4 text-center text-blue-600">Thiết lập thông tin in</h3>
+        <div class="modal-content p-6 w-96 max-w-90vw">
+            <h3 class="text-lg font-semibold mb-4 text-center" style="color: var(--notion-text);">Thiết lập thông tin in</h3>
             
             <!-- Teacher Name -->
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Tên Giáo viên chủ nhiệm:</label>
+                <label class="block text-sm font-medium mb-2">Tên Giáo viên chủ nhiệm:</label>
                 <input 
                     type="text" 
                     id="teacherNameInput" 
                     placeholder="Nhập tên GVCN" 
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full"
                 >
             </div>
             
             <!-- Student Roles -->
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Chọn học sinh cho các vai trò:</label>
+                <label class="block text-sm font-medium mb-2">Chọn học sinh cho các vai trò:</label>
                 
                 <div class="space-y-3">
                     <!-- Lớp trưởng -->
                     <div>
-                        <label class="block text-xs text-gray-600 mb-1">Lớp trưởng:</label>
-                        <select id="classPresidentSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <label class="block text-xs text-secondary mb-1">Lớp trưởng:</label>
+                        <select id="classPresidentSelect" class="w-full text-sm">
                             <option value="">-- Chọn lớp trưởng --</option>
                         </select>
                     </div>
                     
                     <!-- Lớp phó -->
                     <div>
-                        <label class="block text-xs text-gray-600 mb-1">Lớp phó:</label>
-                        <select id="vicePresidentSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <label class="block text-xs text-secondary mb-1">Lớp phó:</label>
+                        <select id="vicePresidentSelect" class="w-full text-sm">
                             <option value="">-- Chọn lớp phó --</option>
                         </select>
                     </div>
                     
                     <!-- Bí thư -->
                     <div>
-                        <label class="block text-xs text-gray-600 mb-1">Bí thư:</label>
-                        <select id="secretarySelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <label class="block text-xs text-secondary mb-1">Bí thư:</label>
+                        <select id="secretarySelect" class="w-full text-sm">
                             <option value="">-- Chọn bí thư --</option>
                         </select>
                     </div>
@@ -499,13 +744,13 @@
             <div class="flex space-x-2">
                 <button 
                     id="confirmPrintBtn" 
-                    class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200 font-bold"
+                    class="flex-1 btn-notion btn-primary font-medium"
                 >
                     In lớp học
                 </button>
                 <button 
                     id="cancelPrintBtn" 
-                    class="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition duration-200"
+                    class="btn-notion btn-secondary"
                 >
                     Hủy
                 </button>

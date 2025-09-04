@@ -12,6 +12,7 @@
     }
     
     /* Hide everything except the classroom layout */
+    nav,
     #sidebar,
     #collapsedSidebar,
     .flex.justify-end.items-center.mb-2,
@@ -139,21 +140,18 @@
         justify-content: center !important;
     }
     
-    /* Teacher header styling for print */
+    /* Teacher header and desk row styling for print */
     #teacherHeader {
-        display: flex !important;
-        justify-content: space-between !important;
-        width: 100% !important;
-        margin-bottom: 15px !important;
+        display: block !important;
     }
     
-    .bg-blue-100 {
+    .bg-blue-50, .bg-blue-100 {
         background: #f0f0f0 !important;
         border: 2px solid #000 !important;
     }
     
     /* Teacher's desk styling for print */
-    .bg-yellow-100 {
+    .bg-yellow-50, .bg-yellow-100 {
         background: #f5f5f5 !important;
         border: 2px solid #000 !important;
         margin-top: 10px !important;

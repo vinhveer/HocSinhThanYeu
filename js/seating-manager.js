@@ -24,9 +24,7 @@ class SeatingManager {
     initializeElements() {
         // Sidebar elements
         this.sidebar = document.getElementById('sidebar');
-        this.collapsedSidebar = document.getElementById('collapsedSidebar');
         this.toggleSidebarBtn = document.getElementById('toggleSidebar');
-        this.expandSidebarBtn = document.getElementById('expandSidebar');
         this.mainContent = document.getElementById('mainContent');
         
         // Button elements
@@ -70,7 +68,6 @@ class SeatingManager {
     bindEvents() {
         // Sidebar collapse events
         this.toggleSidebarBtn.addEventListener('click', () => this.toggleSidebar());
-        this.expandSidebarBtn.addEventListener('click', () => this.toggleSidebar());
         
         // Other events
         this.clearAllStudentsBtn.addEventListener('click', () => this.clearAllStudents());
@@ -88,12 +85,8 @@ class SeatingManager {
         
         if (this.sidebarCollapsed) {
             this.sidebar.classList.add('hidden');
-            this.collapsedSidebar.classList.remove('hidden');
-            this.collapsedSidebar.classList.add('flex');
         } else {
             this.sidebar.classList.remove('hidden');
-            this.collapsedSidebar.classList.add('hidden');
-            this.collapsedSidebar.classList.remove('flex');
         }
     }
 
@@ -139,10 +132,15 @@ class SeatingManager {
     }
 
     searchStudents(query) {
-        const lowercaseQuery = query.toLowerCase();
-        this.filteredStudents = this.students.filter(student => 
-            !student.seated && student.name.toLowerCase().includes(lowercaseQuery)
-        );
+        if (!query.trim()) {
+            // If empty query, show all non-seated students
+            this.filteredStudents = this.students.filter(student => !student.seated);
+        } else {
+            // Use accent-insensitive search
+            this.filteredStudents = this.students.filter(student => 
+                !student.seated && Utils.searchMatch(student.name, query)
+            );
+        }
         this.renderStudentList();
     }
 
@@ -740,12 +738,12 @@ class SeatingManager {
     }
 
     handleClearData() {
-        if (confirm('Are you sure you want to clear all saved data? This will remove all students and seating arrangements permanently.')) {
+        if (confirm('Bạn có chắc chắn muốn xóa toàn bộ dữ liệu đã lưu? Thao tác này sẽ xóa vĩnh viễn tất cả học sinh và sắp xếp chỗ ngồi.')) {
             this.clearData();
             this.students = [];
             this.seats.forEach(seat => seat.student = null);
             this.updateDisplay();
-            alert('All saved data has been cleared successfully.');
+            alert('Tất cả dữ liệu đã được xóa thành công.');
         }
     }
 }

@@ -186,7 +186,7 @@ class PhotoManager {
 
     async savePhoto() {
         if (!this.currentStudentId || !this.currentPhotoData) {
-            alert('Please select an image first');
+            alert('Vui lòng chọn ảnh trước');
             return;
         }
 
@@ -199,17 +199,17 @@ class PhotoManager {
             }
             
             this.closeModal();
-            alert('Photo saved successfully!');
+            alert('Ảnh đã được lưu thành công!');
         } catch (error) {
             console.error('Error saving photo:', error);
-            alert('Error saving photo. Please try again.');
+            alert('Lỗi khi lưu ảnh. Vui lòng thử lại.');
         }
     }
 
     async removePhoto() {
         if (!this.currentStudentId) return;
 
-        if (confirm('Are you sure you want to remove this photo?')) {
+        if (confirm('Bạn có chắc chắn muốn xóa ảnh này?')) {
             try {
                 await this.deletePhoto(this.currentStudentId);
                 
@@ -219,10 +219,10 @@ class PhotoManager {
                 }
                 
                 this.closeModal();
-                alert('Photo removed successfully!');
+                alert('Ảnh đã được xóa thành công!');
             } catch (error) {
                 console.error('Error removing photo:', error);
-                alert('Error removing photo. Please try again.');
+                alert('Lỗi khi xóa ảnh. Vui lòng thử lại.');
             }
         }
     }
