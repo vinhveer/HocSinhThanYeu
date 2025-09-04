@@ -492,8 +492,9 @@ class SeatingManager {
     populateStudentRoleSelects() {
         const seatedStudents = this.students.filter(s => s.seated);
         const selects = ['classPresidentSelect', 'vicePresidentSelect', 'secretarySelect'];
+        const roleKeys = ['classPresident', 'vicePresident', 'secretary'];
         
-        selects.forEach(selectId => {
+        selects.forEach((selectId, index) => {
             const select = document.getElementById(selectId);
             if (!select) return;
             
@@ -509,7 +510,21 @@ class SeatingManager {
                 option.textContent = student.name;
                 select.appendChild(option);
             });
+            
+            // Pre-select from saved print settings if available
+            if (this.printSettings && this.printSettings.roles) {
+                const savedRoleId = this.printSettings.roles[roleKeys[index]];
+                if (savedRoleId) {
+                    select.value = savedRoleId;
+                }
+            }
         });
+        
+        // Pre-fill teacher name if available
+        const teacherNameInput = document.getElementById('teacherNameInput');
+        if (teacherNameInput && this.printSettings && this.printSettings.teacherName) {
+            teacherNameInput.value = this.printSettings.teacherName;
+        }
     }
 
     handleConfirmPrint() {
@@ -555,7 +570,7 @@ class SeatingManager {
     }
 
     updateStudentNamesForPrint() {
-        if (!this.printSettings) return;
+        if (!this.printSettings || !this.printSettings.roles) return;
 
         const { roles } = this.printSettings;
         
@@ -570,12 +585,12 @@ class SeatingManager {
 
                 let nameWithRole = seat.student.name;
                 
-                // Add role indicators
-                if (seat.student.id === roles.classPresident) {
+                // Add role indicators (with safety checks)
+                if (roles.classPresident && seat.student.id === roles.classPresident) {
                     nameWithRole += ' (Lớp trưởng)';
-                } else if (seat.student.id === roles.vicePresident) {
+                } else if (roles.vicePresident && seat.student.id === roles.vicePresident) {
                     nameWithRole += ' (Lớp phó)';
-                } else if (seat.student.id === roles.secretary) {
+                } else if (roles.secretary && seat.student.id === roles.secretary) {
                     nameWithRole += ' (Bí thư)';
                 }
 
@@ -637,6 +652,7 @@ class SeatingManager {
                     row: seat.row,
                     col: seat.col
                 })),
+                printSettings: this.printSettings || null,
                 lastSaved: new Date().toISOString()
             };
             localStorage.setItem(this.storageKey, JSON.stringify(data));
@@ -685,6 +701,16 @@ class SeatingManager {
                             seat.student = savedSeat.student;
                         }
                     });
+                }
+                
+                // Load print settings (for backward compatibility)
+                if (data.printSettings) {
+                    this.printSettings = data.printSettings;
+                    
+                    // Restore teacher name if available
+                    if (this.printSettings.teacherName) {
+                        this.updateTeacherDisplay(this.printSettings.teacherName);
+                    }
                 }
                 
                 console.log('Data loaded from localStorage successfully');
@@ -742,6 +768,14 @@ class SeatingManager {
             this.clearData();
             this.students = [];
             this.seats.forEach(seat => seat.student = null);
+            this.printSettings = null;
+            
+            // Hide teacher header when clearing data
+            const teacherHeader = document.getElementById('teacherHeader');
+            if (teacherHeader) {
+                teacherHeader.classList.add('hidden');
+            }
+            
             this.updateDisplay();
             alert('Tất cả dữ liệu đã được xóa thành công.');
         }
