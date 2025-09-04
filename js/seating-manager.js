@@ -12,6 +12,13 @@ class SeatingManager {
         this.generateSeatingGrids();
         this.loadData();
         this.updateDisplay();
+        
+        // Auto-load photos after a short delay to ensure everything is ready
+        setTimeout(() => {
+            if (window.photoManager && window.photoManager.db) {
+                this.reloadAllPhotos();
+            }
+        }, 100);
     }
 
     initializeElements() {
@@ -455,6 +462,140 @@ class SeatingManager {
     }
 
     printClassroom() {
+        // Open print setup modal instead of printing directly
+        this.openPrintSetupModal();
+    }
+
+    openPrintSetupModal() {
+        const modal = document.getElementById('printSetupModal');
+        if (!modal) return;
+
+        // Populate student dropdowns with seated students
+        this.populateStudentRoleSelects();
+
+        // Show modal
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        // Bind events if not already bound
+        if (!modal.hasAttribute('data-events-bound')) {
+            modal.setAttribute('data-events-bound', 'true');
+            
+            document.getElementById('confirmPrintBtn').addEventListener('click', () => {
+                this.handleConfirmPrint();
+            });
+            
+            document.getElementById('cancelPrintBtn').addEventListener('click', () => {
+                this.closePrintSetupModal();
+            });
+        }
+    }
+
+    populateStudentRoleSelects() {
+        const seatedStudents = this.students.filter(s => s.seated);
+        const selects = ['classPresidentSelect', 'vicePresidentSelect', 'secretarySelect'];
+        
+        selects.forEach(selectId => {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            
+            // Clear existing options except first one
+            while (select.children.length > 1) {
+                select.removeChild(select.lastChild);
+            }
+            
+            // Add student options
+            seatedStudents.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.id;
+                option.textContent = student.name;
+                select.appendChild(option);
+            });
+        });
+    }
+
+    handleConfirmPrint() {
+        // Get values from modal
+        const teacherName = document.getElementById('teacherNameInput').value.trim();
+        const classPresidentId = document.getElementById('classPresidentSelect').value;
+        const vicePresidentId = document.getElementById('vicePresidentSelect').value;
+        const secretaryId = document.getElementById('secretarySelect').value;
+
+        // Store print settings
+        this.printSettings = {
+            teacherName,
+            roles: {
+                classPresident: classPresidentId,
+                vicePresident: vicePresidentId,
+                secretary: secretaryId
+            }
+        };
+
+        // Update teacher name display
+        this.updateTeacherDisplay(teacherName);
+
+        // Update student names with roles for print
+        this.updateStudentNamesForPrint();
+
+        // Close modal
+        this.closePrintSetupModal();
+
+        // Now print
+        this.executePrint();
+    }
+
+    updateTeacherDisplay(teacherName) {
+        const teacherHeader = document.getElementById('teacherHeader');
+        const teacherNameDisplay = document.getElementById('teacherNameDisplay');
+        
+        if (teacherName) {
+            teacherNameDisplay.textContent = teacherName;
+            teacherHeader.classList.remove('hidden');
+        } else {
+            teacherHeader.classList.add('hidden');
+        }
+    }
+
+    updateStudentNamesForPrint() {
+        if (!this.printSettings) return;
+
+        const { roles } = this.printSettings;
+        
+        // Update seat displays with role indicators
+        this.seats.forEach(seat => {
+            if (seat.student) {
+                const seatElement = document.getElementById(`seat-${seat.id}`);
+                if (!seatElement) return;
+                
+                const contentElement = seatElement.querySelector('.seat-content');
+                if (!contentElement) return;
+
+                let nameWithRole = seat.student.name;
+                
+                // Add role indicators
+                if (seat.student.id === roles.classPresident) {
+                    nameWithRole += ' (Lớp trưởng)';
+                } else if (seat.student.id === roles.vicePresident) {
+                    nameWithRole += ' (Lớp phó)';
+                } else if (seat.student.id === roles.secretary) {
+                    nameWithRole += ' (Bí thư)';
+                }
+
+                // Format for two lines with role
+                contentElement.innerHTML = Utils.formatNameForTwoLines(nameWithRole);
+            }
+        });
+    }
+
+    closePrintSetupModal() {
+        const modal = document.getElementById('printSetupModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
+
+    executePrint() {
         // Close any open modals before printing
         if (window.modalManager) {
             window.modalManager.closeModal('addStudent');
@@ -475,11 +616,13 @@ class SeatingManager {
         setTimeout(() => {
             window.print();
             
-            // Restore modals after printing (in case user cancels print dialog)
+            // Restore modals and original names after printing
             setTimeout(() => {
                 modals.forEach(modal => {
                     modal.style.display = '';
                 });
+                // Restore original student names
+                this.renderSeats();
             }, 1000);
         }, 100);
     }
@@ -551,6 +694,40 @@ class SeatingManager {
         } catch (error) {
             console.error('Error loading data from localStorage:', error);
         }
+    }
+
+    // Force reload all photos from IndexedDB
+    async reloadAllPhotos() {
+        if (!window.photoManager || !window.photoManager.db) {
+            console.log('PhotoManager not ready for reloading photos');
+            return;
+        }
+
+        console.log('Reloading all photos from IndexedDB...');
+        for (const seat of this.seats) {
+            if (seat.student) {
+                const seatElement = document.getElementById(`seat-${seat.id}`);
+                if (!seatElement) continue;
+                
+                const photoElement = seatElement.querySelector('.seat-photo');
+                const photoImg = photoElement.querySelector('img');
+                
+                try {
+                    const photoData = await window.photoManager.getPhoto(seat.student.id);
+                    if (photoData && photoData.imageData) {
+                        photoImg.src = photoData.imageData;
+                        photoElement.classList.remove('hidden');
+                        console.log(`Photo loaded for student: ${seat.student.name}`);
+                    } else {
+                        photoElement.classList.add('hidden');
+                    }
+                } catch (error) {
+                    console.error(`Error loading photo for student ${seat.student.name}:`, error);
+                    photoElement.classList.add('hidden');
+                }
+            }
+        }
+        console.log('All photos reloaded');
     }
 
     clearData() {

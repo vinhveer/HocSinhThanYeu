@@ -1,6 +1,10 @@
 /* Print-specific styles for landscape A4 classroom seating layout */
 
 @media print {
+    /* Use Times New Roman font for print */
+    * {
+        font-family: "Times New Roman", Times, serif !important;
+    }
     /* Set landscape A4 format */
     @page {
         size: A4 landscape;
@@ -133,6 +137,19 @@
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+    }
+    
+    /* Teacher header styling for print */
+    #teacherHeader {
+        display: flex !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .bg-blue-100 {
+        background: #f0f0f0 !important;
+        border: 2px solid #000 !important;
     }
     
     /* Teacher's desk styling for print */

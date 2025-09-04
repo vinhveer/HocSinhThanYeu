@@ -1,12 +1,35 @@
 // Main application initialization
 
+// Wait for PhotoManager to be ready
+function waitForPhotoManagerReady() {
+    return new Promise((resolve) => {
+        const checkReady = () => {
+            if (window.photoManager && window.photoManager.db) {
+                resolve();
+            } else {
+                setTimeout(checkReady, 50);
+            }
+        };
+        checkReady();
+    });
+}
+
 // Initialize application when page loads
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // Initialize global managers
     window.modalManager = new ModalManager();
     window.photoManager = new PhotoManager();
+    
+    // Wait for PhotoManager to initialize its database
+    await waitForPhotoManagerReady();
+    
     window.seatingManager = new SeatingManager();
     window.pickOneManager = new PickOneManager();
+    
+    // Load all photos from IndexedDB after initialization
+    if (window.seatingManager.reloadAllPhotos) {
+        await window.seatingManager.reloadAllPhotos();
+    }
     
     // Initialize any additional features
     initializeKeyboardShortcuts();
