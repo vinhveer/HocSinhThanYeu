@@ -26,16 +26,25 @@ class LuckyWheelManager {
     }
 
     bindEvents() {
-        this.openBtn.addEventListener('click', () => this.openModal());
-        this.closeBtn.addEventListener('click', () => this.closeModal());
-        this.spinBtn.addEventListener('click', () => this.spinWheel());
+        // Add null checks for elements that might be moved to offcanvas
+        if (this.openBtn) {
+            this.openBtn.addEventListener('click', () => this.openModal());
+        }
+        if (this.closeBtn) {
+            this.closeBtn.addEventListener('click', () => this.closeModal());
+        }
+        if (this.spinBtn) {
+            this.spinBtn.addEventListener('click', () => this.spinWheel());
+        }
         
         // Close modal when clicking outside
-        this.modal.addEventListener('click', (e) => {
-            if (e.target === this.modal) {
-                this.closeModal();
-            }
-        });
+        if (this.modal) {
+            this.modal.addEventListener('click', (e) => {
+                if (e.target === this.modal) {
+                    this.closeModal();
+                }
+            });
+        }
     }
 
     openModal() {

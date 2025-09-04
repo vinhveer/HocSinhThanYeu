@@ -66,13 +66,23 @@ class SeatingManager {
 
     bindEvents() {
         // Sidebar collapse events
-        this.toggleSidebarBtn.addEventListener('click', () => this.toggleSidebar());
+        if (this.toggleSidebarBtn) {
+            this.toggleSidebarBtn.addEventListener('click', () => this.toggleSidebar());
+        }
         
-        // Other events
-        this.clearAllStudentsBtn.addEventListener('click', () => this.handleClearAllStudents());
-        this.clearSeatsBtn.addEventListener('click', () => this.handleClearSeats());
-        this.printClassroomBtn.addEventListener('click', () => this.printClassroom());
-        this.searchInput.addEventListener('input', Utils.debounce((e) => this.searchStudents(e.target.value), 300));
+        // Other events (with null checks for moved buttons)
+        if (this.clearAllStudentsBtn) {
+            this.clearAllStudentsBtn.addEventListener('click', () => this.handleClearAllStudents());
+        }
+        if (this.clearSeatsBtn) {
+            this.clearSeatsBtn.addEventListener('click', () => this.handleClearSeats());
+        }
+        if (this.printClassroomBtn) {
+            this.printClassroomBtn.addEventListener('click', () => this.printClassroom());
+        }
+        if (this.searchInput) {
+            this.searchInput.addEventListener('input', Utils.debounce((e) => this.searchStudents(e.target.value), 300));
+        }
         
         // Setup sidebar drop zone
         this.setupSidebarDropZone();

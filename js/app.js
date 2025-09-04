@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.seatingManager = new SeatingManager();
     window.pickOneManager = new PickOneManager();
     window.luckyWheelManager = new LuckyWheelManager();
+    window.importExportManager = new ImportExportManager();
     
     // Load all photos from IndexedDB after initialization
     if (window.seatingManager.reloadAllPhotos) {
@@ -37,6 +38,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeKeyboardShortcuts();
     initializeTooltips();
     
+    // Delay offcanvas initialization to ensure DOM is fully ready
+    setTimeout(() => {
+        initializeOffcanvasMenu();
+    }, 100);
+    
     console.log('Classroom Seating Manager initialized successfully');
     console.log('PhotoManager available:', !!window.photoManager);
     console.log('SeatingManager available:', !!window.seatingManager);
@@ -44,6 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('ConfirmationManager available:', !!window.confirmationManager);
     console.log('PickOneManager available:', !!window.pickOneManager);
     console.log('LuckyWheelManager available:', !!window.luckyWheelManager);
+    console.log('ImportExportManager available:', !!window.importExportManager);
     
     // Test function for debugging
     window.testPhotoModal = function() {
@@ -109,6 +116,15 @@ function initializeKeyboardShortcuts() {
             e.preventDefault();
             window.luckyWheelManager.openModal();
         }
+        
+        // Ctrl/Cmd + M: More Options (Offcanvas)
+        if ((e.ctrlKey || e.metaKey) && e.key === 'm') {
+            e.preventDefault();
+            const moreOptionsBtn = document.getElementById('moreOptionsBtn');
+            if (moreOptionsBtn) {
+                moreOptionsBtn.click();
+            }
+        }
     });
 }
 
@@ -121,7 +137,10 @@ function initializeTooltips() {
         'toggleSidebar': 'Ctrl+/',
         'printClassroom': 'Ctrl+P',
         'pickOneBtn': 'Ctrl+R',
-        'luckyWheelBtn': 'Ctrl+W'
+        'luckyWheelBtn': 'Ctrl+W',
+        'exportDataBtn': 'Xuất dữ liệu và hình ảnh',
+        'importDataBtn': 'Nhập dữ liệu từ file .zip',
+        'moreOptionsBtn': 'Ctrl+M'
     };
     
     Object.entries(shortcuts).forEach(([id, shortcut]) => {
@@ -146,3 +165,82 @@ document.addEventListener('dragover', (e) => {
 document.addEventListener('drop', (e) => {
     e.preventDefault();
 });
+
+// Initialize offcanvas menu functionality
+function initializeOffcanvasMenu() {
+    const moreOptionsBtn = document.getElementById('moreOptionsBtn');
+    const offcanvasMenu = document.getElementById('offcanvasMenu');
+    const offcanvasPanel = document.getElementById('offcanvasPanel');
+    const closeOffcanvas = document.getElementById('closeOffcanvas');
+
+    function openOffcanvasMenu() {
+        if (offcanvasMenu) {
+            offcanvasMenu.classList.remove('hidden');
+            setTimeout(() => {
+                if (offcanvasPanel) {
+                    offcanvasPanel.classList.add('offcanvas-open');
+                }
+            }, 10);
+        }
+    }
+
+    function closeOffcanvasMenuFunc() {
+        offcanvasPanel.classList.remove('offcanvas-open');
+        setTimeout(() => {
+            offcanvasMenu.classList.add('hidden');
+        }, 300);
+    }
+
+    // Make closeOffcanvasMenu globally available for onclick handlers
+    window.closeOffcanvasMenu = closeOffcanvasMenuFunc;
+
+    if (moreOptionsBtn) {
+        moreOptionsBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openOffcanvasMenu();
+        });
+    }
+
+    if (closeOffcanvas) {
+        closeOffcanvas.addEventListener('click', closeOffcanvasMenuFunc);
+    }
+
+    // Close when clicking overlay
+    if (offcanvasMenu) {
+        offcanvasMenu.addEventListener('click', (e) => {
+            if (e.target === offcanvasMenu) {
+                closeOffcanvasMenuFunc();
+            }
+        });
+    }
+
+    // Enhanced sidebar toggle for mobile
+    const toggleSidebarBtn = document.getElementById('toggleSidebar');
+    const sidebar = document.getElementById('sidebar');
+
+    if (toggleSidebarBtn && sidebar) {
+        toggleSidebarBtn.addEventListener('click', () => {
+            // On mobile, use show class for full overlay
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('show');
+            }
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && 
+                sidebar.classList.contains('show') && 
+                !sidebar.contains(e.target) && 
+                !toggleSidebarBtn.contains(e.target)) {
+                sidebar.classList.remove('show');
+            }
+        });
+    }
+
+    // ESC key to close offcanvas
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !offcanvasMenu.classList.contains('hidden')) {
+            closeOffcanvasMenuFunc();
+        }
+    });
+}
