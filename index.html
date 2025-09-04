@@ -313,10 +313,10 @@
             }
         }
         
-        /* PickOne Wheel Animations */
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        /* PickOne Card Animations */
+        @keyframes slideCards {
+            0% { transform: translateX(0px); }
+            100% { transform: translateX(-200px); }
         }
         
         @keyframes pulse {
@@ -324,12 +324,76 @@
             50% { opacity: 0.5; }
         }
         
+        @keyframes cardPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+            50% { transform: scale(1.05); box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4); }
+        }
+        
         .animate-pulse {
             animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
         
+        .cards-sliding {
+            animation: slideCards 0.15s linear infinite;
+        }
+        
+        .selected-card {
+            animation: cardPulse 0.8s ease-in-out infinite;
+            background: linear-gradient(135deg, #ffd700, #ffed4e) !important;
+            color: #7c2d12 !important;
+            border-color: #f59e0b !important;
+        }
+        
+        /* Student card styling */
+        .student-card {
+            background: white;
+            border: 2px solid var(--notion-border);
+            border-radius: 0.5rem;
+            padding: 1rem 1.5rem;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: auto;
+            flex-shrink: 0;
+        }
+        
+        .student-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Lucky Wheel Animations */
+        @keyframes spinWheel {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         .wheel-spinning {
-            animation: spin 0.5s linear infinite;
+            animation: spinWheel 0.5s linear infinite;
+        }
+        
+        .wheel-final-spin {
+            transition: transform 3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+        
+        /* Wheel section styling */
+        .wheel-section {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            overflow: hidden;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            font-weight: bold;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: 10px;
         }
         
         /* Prevent text selection during spin */
@@ -371,40 +435,47 @@
             </div>
             
             <div class="flex items-center space-x-3">
-                <button 
-                    id="openAddStudentModal" 
+                    <button 
+                        id="openAddStudentModal" 
                     class="btn-notion btn-primary"
-                >
+                    >
                     Thêm học sinh
-                </button>
-                
-                <button 
-                    id="openAddListModal" 
+                    </button>
+                    
+                    <button 
+                        id="openAddListModal" 
                     class="btn-notion btn-success"
-                >
+                    >
                     Thêm danh sách
-                </button>
-                
-                <button 
-                    id="pickOneBtn" 
+                    </button>
+
+                    <button 
+                        id="pickOneBtn" 
                     class="btn-notion btn-purple"
                 >
                     🎯 Chọn ngẫu nhiên
                 </button>
                 
                 <button 
+                    id="luckyWheelBtn" 
+                    class="btn-notion btn-primary"
+                >
+                    🎰 Vòng quay may mắn
+                    </button>
+
+                        <button 
                     id="printClassroom" 
                     class="btn-notion btn-primary"
                 >
                     In lớp học
-                </button>
-                
+                        </button>
+                    
                 <button 
                     id="clearSeats" 
                     class="btn-notion btn-danger"
                 >
                     Xóa ghế
-                </button>
+                                    </button>
                 
                 <button 
                     id="clearAllStudents" 
@@ -413,14 +484,8 @@
                     Xóa tất cả
                 </button>
                 
-                <button 
-                    id="clearData" 
-                    class="btn-notion btn-secondary"
-                >
-                    Xóa dữ liệu
-                </button>
-            </div>
-        </div>
+                                </div>
+                            </div>
     </nav>
 
     <div class="flex h-full" style="height: calc(100vh - 70px);">
@@ -434,7 +499,7 @@
                 <!-- Student count -->
                 <div class="text-sm text-secondary">
                     Đang chờ: <span id="studentCount" class="font-medium">0</span>
-                </div>
+                        </div>
                 
                 <!-- Save status -->
                 <div class="mt-2 text-xs text-secondary">
@@ -450,14 +515,14 @@
                     placeholder="Tìm kiếm học sinh..." 
                     class="w-full"
                 >
-            </div>
+                </div>
 
             <!-- Student list -->
             <div class="flex-1 overflow-y-auto p-4">
                 <div id="studentList" class="space-y-2">
                     <!-- Students will be dynamically added here -->
                 </div>
-                
+
                 <!-- Empty state -->
                 <div id="emptyStudentState" class="text-center text-gray-500 mt-10">
                     <p class="text-sm">Chưa có học sinh chờ</p>
@@ -467,7 +532,7 @@
         </div>
 
 
-        <!-- Main content area - Classroom Seating -->
+    <!-- Main content area - Classroom Seating -->
         <div id="mainContent" class="flex-1 p-4 overflow-auto min-w-0">
             <div class="flex justify-end items-center mb-4">
                 <div class="flex items-center">
@@ -477,7 +542,7 @@
                 </div>
             </div>
             
-            <!-- Classroom layout -->
+                <!-- Classroom layout -->
             <div class="w-full max-w-none">
                 <div class="flex gap-4 w-full items-stretch">
                     <!-- Left side classroom -->
@@ -513,7 +578,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Teacher's desk -->
                 <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 w-48">
                     <div class="text-center font-medium text-sm">BÀN GIÁO VIÊN</div>
@@ -644,20 +709,17 @@
 
     <!-- Pick One Modal -->
     <div id="pickOneModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="modal-content p-6 w-96 max-w-90vw">
+        <div class="modal-content p-4 w-full max-w-4xl mx-4">
             <h3 class="text-lg font-semibold mb-4 text-center" style="color: var(--notion-text);">🎯 Chọn ngẫu nhiên học sinh</h3>
             
-            <!-- Wheel Container -->
-            <div class="mb-6 flex justify-center">
-                <div id="wheelContainer" class="relative w-72 h-72 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center shadow-2xl">
-                    <!-- Pointer -->
-                    <div class="absolute top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-8 border-transparent border-b-red-500 z-10"></div>
+            <!-- Card Slider Container -->
+            <div class="mb-6 relative overflow-hidden">
+                <div class="h-64 relative">
+                    <!-- Selection indicator removed per user request -->
                     
-                    <!-- Student Names Slider -->
-                    <div id="studentWheel" class="text-center no-select">
-                        <div id="currentStudent" class="text-2xl font-bold text-white bg-black bg-opacity-30 rounded-lg px-4 py-2 min-h-16 flex items-center justify-center">
-                            Sẵn sàng?
-                        </div>
+                    <!-- Cards container -->
+                    <div id="cardsContainer" class="absolute top-1/2 left-0 transform -translate-y-1/2 flex space-x-4 transition-transform duration-300 ease-out">
+                        <!-- Cards will be dynamically generated here -->
                     </div>
                 </div>
             </div>
@@ -758,11 +820,89 @@
         </div>
     </div>
 
+    <!-- Lucky Wheel Modal -->
+    <div id="luckyWheelModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="modal-content p-4 w-full max-w-2xl mx-4">
+            <h3 class="text-lg font-semibold mb-4 text-center" style="color: var(--notion-text);">🎰 Vòng quay may mắn</h3>
+            
+            <!-- Wheel Container -->
+            <div class="mb-6 flex justify-center">
+                <div class="relative">
+                    <!-- Wheel -->
+                    <div id="luckyWheel" class="w-80 h-80 rounded-full border-8 border-gray-300 bg-gradient-to-br from-yellow-400 via-red-400 to-blue-400 relative overflow-hidden shadow-2xl">
+                        <!-- Pointer -->
+                        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-6 border-r-6 border-b-12 border-transparent border-b-white z-20" style="border-left-width: 12px; border-right-width: 12px; border-bottom-width: 20px;"></div>
+                        
+                        <!-- Wheel sections will be generated here -->
+                        <div id="wheelSections" class="w-full h-full relative">
+                            <!-- Dynamic sections -->
+                        </div>
+                        
+                        <!-- Center circle -->
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white rounded-full border-4 border-gray-300 flex items-center justify-center shadow-lg">
+                            <span class="text-2xl">🎯</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Controls -->
+            <div class="text-center mb-4">
+                <button id="spinLuckyWheelBtn" class="btn-notion btn-success text-lg px-8 py-3">
+                    🎲 Quay bánh xe!
+                </button>
+            </div>
+            
+            <!-- Result Display -->
+            <div id="luckyWheelResult" class="text-center mb-4 hidden">
+                <div class="bg-yellow-100 border-2 border-yellow-400 rounded-lg p-4">
+                    <h4 class="text-lg font-bold text-yellow-800 mb-2">🎉 Người được chọn:</h4>
+                    <p id="luckyWheelSelectedStudent" class="text-xl font-bold text-purple-600"></p>
+                </div>
+            </div>
+            
+            <!-- Student Count -->
+            <p id="luckyWheelStudentCount" class="text-center text-gray-600 mb-4"></p>
+            
+            <!-- Close Button -->
+            <div class="flex justify-end">
+                <button id="closeLuckyWheelBtn" class="btn-notion btn-secondary">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="modal-content p-6 w-full max-w-md mx-4">
+            <h3 class="text-lg font-semibold mb-4 text-center" style="color: var(--notion-text);">⚠️ Xác nhận thao tác</h3>
+            
+            <!-- Message -->
+            <div class="mb-6 text-center">
+                <p id="confirmationMessage" class="text-gray-700 mb-2"></p>
+                <p class="text-sm text-gray-500">Thao tác này không thể hoàn tác.</p>
+            </div>
+            
+            <!-- Controls -->
+            <div class="flex space-x-3">
+                <button id="confirmActionBtn" class="flex-1 btn-notion btn-danger">
+                    Xác nhận
+                </button>
+                <button id="cancelActionBtn" class="flex-1 btn-notion btn-secondary">
+                    Hủy bỏ
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/utils.js"></script>
     <script src="js/modal-manager.js"></script>
+    <script src="js/confirmation-manager.js"></script>
     <script src="js/photo-manager.js"></script>
     <script src="js/seating-manager.js"></script>
     <script src="js/pickone-manager.js"></script>
+    <script src="js/lucky-wheel-manager.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

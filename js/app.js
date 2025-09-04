@@ -18,6 +18,7 @@ function waitForPhotoManagerReady() {
 document.addEventListener('DOMContentLoaded', async () => {
     // Initialize global managers
     window.modalManager = new ModalManager();
+    window.confirmationManager = new ConfirmationManager();
     window.photoManager = new PhotoManager();
     
     // Wait for PhotoManager to initialize its database
@@ -25,6 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     window.seatingManager = new SeatingManager();
     window.pickOneManager = new PickOneManager();
+    window.luckyWheelManager = new LuckyWheelManager();
     
     // Load all photos from IndexedDB after initialization
     if (window.seatingManager.reloadAllPhotos) {
@@ -39,6 +41,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('PhotoManager available:', !!window.photoManager);
     console.log('SeatingManager available:', !!window.seatingManager);
     console.log('ModalManager available:', !!window.modalManager);
+    console.log('ConfirmationManager available:', !!window.confirmationManager);
+    console.log('PickOneManager available:', !!window.pickOneManager);
+    console.log('LuckyWheelManager available:', !!window.luckyWheelManager);
     
     // Test function for debugging
     window.testPhotoModal = function() {
@@ -76,6 +81,9 @@ function initializeKeyboardShortcuts() {
             if (window.pickOneManager) {
                 window.pickOneManager.closeModal();
             }
+            if (window.luckyWheelManager) {
+                window.luckyWheelManager.closeModal();
+            }
         }
         
         // Ctrl/Cmd + /: Toggle sidebar
@@ -95,6 +103,12 @@ function initializeKeyboardShortcuts() {
             e.preventDefault();
             window.pickOneManager.openModal();
         }
+        
+        // Ctrl/Cmd + W: Lucky Wheel
+        if ((e.ctrlKey || e.metaKey) && e.key === 'w') {
+            e.preventDefault();
+            window.luckyWheelManager.openModal();
+        }
     });
 }
 
@@ -106,7 +120,8 @@ function initializeTooltips() {
         'openAddListModal': 'Ctrl+L',
         'toggleSidebar': 'Ctrl+/',
         'printClassroom': 'Ctrl+P',
-        'pickOneBtn': 'Ctrl+R'
+        'pickOneBtn': 'Ctrl+R',
+        'luckyWheelBtn': 'Ctrl+W'
     };
     
     Object.entries(shortcuts).forEach(([id, shortcut]) => {

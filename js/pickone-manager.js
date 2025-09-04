@@ -11,9 +11,7 @@ class PickOneManager {
 
     initializeElements() {
         this.modal = document.getElementById('pickOneModal');
-        this.wheelContainer = document.getElementById('wheelContainer');
-        this.studentWheel = document.getElementById('studentWheel');
-        this.currentStudentDisplay = document.getElementById('currentStudent');
+        this.cardsContainer = document.getElementById('cardsContainer');
         this.resultDisplay = document.getElementById('resultDisplay');
         this.selectedStudentDisplay = document.getElementById('selectedStudent');
         this.spinBtn = document.getElementById('spinWheelBtn');
@@ -39,12 +37,13 @@ class PickOneManager {
         const allStudents = this.getAllStudents();
         
         if (allStudents.length === 0) {
-            alert('No students available! Please add some students first.');
+            alert('Không có học sinh nào! Vui lòng thêm học sinh trước.');
             return;
         }
 
         this.updateStudentCount(allStudents.length);
-        this.resetWheel();
+        this.createStudentCards(allStudents);
+        this.resetCards();
         this.modal.classList.remove('hidden');
         this.modal.classList.add('flex');
     }
@@ -53,7 +52,7 @@ class PickOneManager {
         this.modal.classList.add('hidden');
         this.modal.classList.remove('flex');
         this.stopSpinning();
-        this.resetWheel();
+        this.resetCards();
     }
 
     getAllStudents() {
@@ -64,85 +63,72 @@ class PickOneManager {
     }
 
     updateStudentCount(count) {
-        this.studentCountDisplay.textContent = `${count} students available`;
+        this.studentCountDisplay.textContent = `${count} học sinh có sẵn`;
     }
 
-    resetWheel() {
+    createStudentCards(students) {
+        this.cardsContainer.innerHTML = '';
+        
+        // Create multiple sets of cards for smooth infinite scrolling
+        const cardSets = 4; // Duplicate cards for seamless scrolling
+        for (let set = 0; set < cardSets; set++) {
+            students.forEach((student, index) => {
+                const card = document.createElement('div');
+                card.className = 'student-card no-select';
+                card.innerHTML = `
+                    <div class="text-lg font-semibold text-gray-800 whitespace-nowrap">${student.name}</div>
+                `;
+                this.cardsContainer.appendChild(card);
+            });
+        }
+    }
+
+    resetCards() {
         this.currentStudentIndex = 0;
-        this.currentStudentDisplay.textContent = 'Ready?';
-        this.currentStudentDisplay.className = 'text-2xl font-bold text-white bg-black bg-opacity-30 rounded-lg px-4 py-2 min-h-16 flex items-center justify-center';
         this.resultDisplay.classList.add('hidden');
         this.spinBtn.disabled = false;
-        this.spinBtn.textContent = '🎲 Spin the Wheel!';
-        this.wheelContainer.style.transform = 'rotate(0deg)';
-        this.wheelContainer.style.transition = '';
-        this.wheelContainer.classList.add('no-select');
+        this.spinBtn.textContent = '🎲 Quay ngẫu nhiên!';
+        this.cardsContainer.style.transform = 'translateX(0px)';
+        this.cardsContainer.classList.remove('cards-sliding');
+        
+        // Remove selected styling from all cards
+        const cards = this.cardsContainer.querySelectorAll('.student-card');
+        cards.forEach(card => {
+            card.classList.remove('selected-card');
+        });
     }
 
     spinWheel() {
         const allStudents = this.getAllStudents();
         
         if (allStudents.length === 0) {
-            alert('No students available!');
+            alert('Không có học sinh nào!');
             return;
         }
 
         if (this.isSpinning) return;
 
-        this.startSpinning(allStudents);
+        this.startCardSliding(allStudents);
     }
 
-    startSpinning(students) {
+    startCardSliding(students) {
         this.isSpinning = true;
         this.spinBtn.disabled = true;
-        this.spinBtn.textContent = '🎲 Spinning...';
+        this.spinBtn.textContent = '🎲 Đang quay...';
         this.resultDisplay.classList.add('hidden');
 
-        // Add spinning animation to wheel container
-        this.wheelContainer.style.transition = 'transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+        // Start sliding animation
+        this.cardsContainer.classList.add('cards-sliding');
         
-        // Random number of rotations (3-7 full rotations)
-        const randomRotations = 3 + Math.random() * 4;
-        const finalRotation = randomRotations * 360;
-        this.wheelContainer.style.transform = `rotate(${finalRotation}deg)`;
-
-        // Cycle through student names rapidly
-        let speed = 50; // Start fast
-        let iterations = 0;
-        this.currentStudentIndex = 0;
-
-        const updateSpeed = () => {
-            if (this.spinInterval) {
-                clearInterval(this.spinInterval);
-            }
-            
-            this.currentStudentDisplay.textContent = students[this.currentStudentIndex].name;
-            this.currentStudentIndex = (this.currentStudentIndex + 1) % students.length;
-            iterations++;
-            
-            // Gradually slow down after 20 iterations
-            if (iterations > 20) {
-                speed += Math.floor(iterations / 4);
-            }
-            
-            if (speed > 300 || iterations > 60) {
-                this.stopSpinning();
-                this.selectRandomStudent(students);
-                return;
-            }
-            
-            this.spinInterval = setTimeout(updateSpeed, speed);
-        };
-
-        this.spinInterval = setTimeout(updateSpeed, speed);
-
-        // Also stop after 3 seconds regardless
+        // Slide duration: 2-4 seconds
+        const slideDuration = 2000 + Math.random() * 2000;
+        
+        const randomStudentIndex = Math.floor(Math.random() * students.length);
+        
         setTimeout(() => {
-            if (this.isSpinning) {
-                this.stopSpinning();
-                this.selectRandomStudent(students);
-            }
-        }, 3000);
+            this.stopSpinning();
+            this.selectRandomStudent(students, randomStudentIndex);
+        }, slideDuration);
     }
 
     stopSpinning() {
@@ -151,20 +137,89 @@ class PickOneManager {
             clearInterval(this.spinInterval);
             this.spinInterval = null;
         }
+        this.cardsContainer.classList.remove('cards-sliding');
         this.isSpinning = false;
     }
 
-    selectRandomStudent(students) {
+    selectRandomStudent(students, selectedIndex) {
         this.stopSpinning();
         
-        // Select random student
-        const randomIndex = Math.floor(Math.random() * students.length);
-        const selectedStudent = students[randomIndex];
+        const selectedStudent = students[selectedIndex];
 
+        // Calculate precise positioning using container center
+        const cardsContainerParent = this.cardsContainer.parentElement;
+        const containerRect = cardsContainerParent.getBoundingClientRect();
+        
+        // Get the center position of the container
+        const containerCenterX = containerRect.width / 2;
+        
+        // Calculate card positioning using actual DOM measurements
+        const allCards = this.cardsContainer.querySelectorAll('.student-card');
+        const firstCard = allCards[0];
+        const secondCard = allCards[1];
+        
+        let cardWidth, actualCardWidth, selectedCardInSet, selectedCardLeftEdge, selectedCardCenterX;
+        
+        if (firstCard && secondCard) {
+            // Calculate actual distance between cards (left edge to left edge)
+            const firstCardRect = firstCard.getBoundingClientRect();
+            const secondCardRect = secondCard.getBoundingClientRect();
+            cardWidth = secondCardRect.left - firstCardRect.left;
+            actualCardWidth = firstCard.offsetWidth;
+        } else {
+            // Fallback calculation - approximate values
+            actualCardWidth = 160; // Smaller default for auto-width cards
+            cardWidth = 180; // card + gap
+        }
+        
+        // Calculate cumulative position for the selected card in the 3rd set
+        selectedCardInSet = selectedIndex + students.length * 2; // Use 3rd set for positioning
+        
+        // For more accurate positioning with variable card widths
+        if (allCards.length > selectedCardInSet) {
+            const targetCard = allCards[selectedCardInSet];
+            const targetCardRect = targetCard.getBoundingClientRect();
+            const containerRect = this.cardsContainer.getBoundingClientRect();
+            selectedCardLeftEdge = targetCardRect.left - containerRect.left;
+            selectedCardCenterX = selectedCardLeftEdge + (targetCard.offsetWidth / 2);
+        } else {
+            // Fallback to calculated position
+            selectedCardLeftEdge = selectedCardInSet * cardWidth;
+            selectedCardCenterX = selectedCardLeftEdge + (actualCardWidth / 2);
+        }
+        
+        // Calculate the exact offset needed to center the selected card in the container
+        const finalOffset = containerCenterX - selectedCardCenterX;
+
+        // Debug logging to ensure accuracy
+        console.log('Auto-width card centering debug:', {
+            containerCenterX,
+            selectedCardCenterX,
+            finalOffset,
+            selectedIndex,
+            selectedCardInSet,
+            actualCardWidth,
+            selectedCardLeftEdge,
+            totalCards: allCards.length
+        });
+
+        // Animate to final position
+        this.cardsContainer.style.transition = 'transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        this.cardsContainer.style.transform = `translateX(${finalOffset}px)`;
+        
         // Show final result with animation
         setTimeout(() => {
-            this.currentStudentDisplay.textContent = selectedStudent.name;
-            this.currentStudentDisplay.className = 'text-2xl font-bold text-yellow-300 bg-red-500 bg-opacity-80 rounded-lg px-4 py-2 min-h-16 flex items-center justify-center animate-pulse';
+            // Highlight the selected card (from the 3rd set)
+            const allCards = this.cardsContainer.querySelectorAll('.student-card');
+            const selectedCardIndex = selectedIndex + students.length * 2; // Use 3rd set
+            
+            // Remove any existing selected styling
+            allCards.forEach(card => card.classList.remove('selected-card'));
+            
+            // Add selected styling to the correct card
+            if (allCards[selectedCardIndex]) {
+                allCards[selectedCardIndex].classList.add('selected-card');
+            }
             
             // Show result display
             this.selectedStudentDisplay.textContent = selectedStudent.name;
@@ -172,22 +227,28 @@ class PickOneManager {
             
             // Reset button
             this.spinBtn.disabled = false;
-            this.spinBtn.textContent = '🎲 Spin Again!';
+            this.spinBtn.textContent = '🎲 Quay lại!';
             
             // Play celebration sound effect (if possible)
             this.playCelebrationEffect();
             
-        }, 500);
+        }, 1000);
     }
 
     playCelebrationEffect() {
-        // Add visual celebration effect
-        this.wheelContainer.style.transition = 'transform 0.5s ease-in-out';
-        this.wheelContainer.style.transform += ' scale(1.1)';
-        
-        setTimeout(() => {
-            this.wheelContainer.style.transform = this.wheelContainer.style.transform.replace(' scale(1.1)', '');
-        }, 500);
+        // Add visual celebration effect to the selected card
+        const selectedCard = this.cardsContainer.querySelector('.selected-card');
+        if (selectedCard) {
+            // The animation is handled by CSS class 'selected-card'
+            // Additional celebration can be added here
+            
+            // Add a brief glow effect to the container
+            this.cardsContainer.style.filter = 'drop-shadow(0 0 20px rgba(255, 215, 0, 0.6))';
+            
+            setTimeout(() => {
+                this.cardsContainer.style.filter = '';
+            }, 1000);
+        }
     }
 }
 

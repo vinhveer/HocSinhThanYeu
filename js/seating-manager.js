@@ -31,7 +31,6 @@ class SeatingManager {
         this.clearAllStudentsBtn = document.getElementById('clearAllStudents');
         this.clearSeatsBtn = document.getElementById('clearSeats');
         this.printClassroomBtn = document.getElementById('printClassroom');
-        this.clearDataBtn = document.getElementById('clearData');
         
         // Display elements
         this.studentList = document.getElementById('studentList');
@@ -70,10 +69,9 @@ class SeatingManager {
         this.toggleSidebarBtn.addEventListener('click', () => this.toggleSidebar());
         
         // Other events
-        this.clearAllStudentsBtn.addEventListener('click', () => this.clearAllStudents());
-        this.clearSeatsBtn.addEventListener('click', () => this.clearAllSeats());
+        this.clearAllStudentsBtn.addEventListener('click', () => this.handleClearAllStudents());
+        this.clearSeatsBtn.addEventListener('click', () => this.handleClearSeats());
         this.printClassroomBtn.addEventListener('click', () => this.printClassroom());
-        this.clearDataBtn.addEventListener('click', () => this.handleClearData());
         this.searchInput.addEventListener('input', Utils.debounce((e) => this.searchStudents(e.target.value), 300));
         
         // Setup sidebar drop zone
@@ -114,6 +112,32 @@ class SeatingManager {
         this.saveData();
     }
 
+    // Confirmation handlers
+    handleClearAllStudents() {
+        if (window.confirmationManager) {
+            window.confirmationManager.confirm(
+                ConfirmationManager.messages.clearAllStudents,
+                () => this.clearAllStudents(),
+                'Xóa tất cả'
+            );
+        } else {
+            this.clearAllStudents();
+        }
+    }
+
+    handleClearSeats() {
+        if (window.confirmationManager) {
+            window.confirmationManager.confirm(
+                ConfirmationManager.messages.clearSeats,
+                () => this.clearAllSeats(),
+                'Xóa ghế'
+            );
+        } else {
+            this.clearAllSeats();
+        }
+    }
+
+    // Actual clearing methods
     clearAllStudents() {
         this.students = [];
         this.seats.forEach(seat => seat.student = null);
@@ -763,21 +787,4 @@ class SeatingManager {
         }
     }
 
-    handleClearData() {
-        if (confirm('Bạn có chắc chắn muốn xóa toàn bộ dữ liệu đã lưu? Thao tác này sẽ xóa vĩnh viễn tất cả học sinh và sắp xếp chỗ ngồi.')) {
-            this.clearData();
-            this.students = [];
-            this.seats.forEach(seat => seat.student = null);
-            this.printSettings = null;
-            
-            // Hide teacher header when clearing data
-            const teacherHeader = document.getElementById('teacherHeader');
-            if (teacherHeader) {
-                teacherHeader.classList.add('hidden');
-            }
-            
-            this.updateDisplay();
-            alert('Tất cả dữ liệu đã được xóa thành công.');
-        }
-    }
 }
