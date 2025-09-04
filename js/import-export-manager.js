@@ -56,15 +56,26 @@ class ImportExportManager {
             const imageFolder = zip.folder('images');
             
             if (window.photoManager?.db) {
+                console.log('Exporting images from IndexedDB...');
                 const images = await this.getAllImages();
+                console.log(`Found ${images.length} images in IndexedDB:`, images);
                 
                 for (const imageData of images) {
-                    if (imageData.photo) {
-                        // Convert blob to base64 and save
-                        const base64 = await this.blobToBase64(imageData.photo);
-                        imageFolder.file(`${imageData.studentId}.jpg`, base64.split(',')[1], {base64: true});
+                    console.log('Processing image:', imageData);
+                    if (imageData.imageData) {
+                        try {
+                            // imageData.imageData is already a base64 string like "data:image/jpeg;base64,..."
+                            const base64Data = imageData.imageData.split(',')[1]; // Remove data:image/jpeg;base64, prefix
+                            imageFolder.file(`${imageData.studentId}.jpg`, base64Data, {base64: true});
+                            console.log(`Image exported for student: ${imageData.studentId}`);
+                        } catch (error) {
+                            console.error(`Error processing image for ${imageData.studentId}:`, error);
+                        }
                     }
                 }
+                console.log('Images export completed');
+            } else {
+                console.log('PhotoManager or database not available for export');
             }
             
             // 3. Generate zip file
@@ -131,17 +142,42 @@ Bạn có chắc chắn muốn tiếp tục?`;
             // 5. Import images first
             const imagesFolder = zip.folder('images');
             if (imagesFolder && window.photoManager?.db) {
+                console.log('Importing images to IndexedDB...');
                 await this.clearAllImages();
                 
-                imagesFolder.forEach(async (relativePath, file) => {
-                    if (file.name.endsWith('.jpg')) {
-                        const studentId = file.name.replace('images/', '').replace('.jpg', '');
-                        const base64 = await file.async('base64');
-                        const blob = this.base64ToBlob(base64, 'image/jpeg');
-                        
-                        await window.photoManager.savePhoto(studentId, blob);
+                // Get all files in images folder
+                const imageFiles = [];
+                imagesFolder.forEach((relativePath, file) => {
+                    if (file.name.endsWith('.jpg') || file.name.endsWith('.jpeg') || file.name.endsWith('.png')) {
+                        imageFiles.push(file);
                     }
                 });
+                
+                console.log(`Found ${imageFiles.length} image files to import`);
+                
+                // Import images sequentially to avoid IndexedDB conflicts
+                for (const file of imageFiles) {
+                    try {
+                        // Extract student ID from filename (images/studentId.jpg -> studentId)
+                        const fileName = file.name.split('/').pop(); // Get filename only
+                        const studentId = fileName.replace(/\.(jpg|jpeg|png)$/i, '');
+                        
+                        console.log(`Importing image for student: ${studentId}`);
+                        
+                        const base64 = await file.async('base64');
+                        // Convert to data URL format that PhotoManager expects
+                        const dataUrl = `data:image/jpeg;base64,${base64}`;
+                        
+                        // Use storePhoto directly since we have the correct format
+                        await window.photoManager.storePhoto(studentId, dataUrl);
+                        console.log(`Image imported successfully for: ${studentId}`);
+                    } catch (error) {
+                        console.error(`Error importing image ${file.name}:`, error);
+                    }
+                }
+                console.log('Images import completed');
+            } else {
+                console.log('No images folder or PhotoManager not available');
             }
             
             // 6. Import main data
